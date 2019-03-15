@@ -1,2 +1,6 @@
 services.txt
 .idea/
+build/
+dist/
+__pycache__/
+*.spec
