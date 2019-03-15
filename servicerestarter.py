@@ -20,12 +20,9 @@ def stop_service(svcname):
 def start_service(svcname):
     # print("starting {}".format(svcname))
     subprocess.run(['net', 'start', svcname], capture_output=True)
-    # print(cp.stdout)
-    # print('done')
 
 
 class Example(wx.Frame):
-
     def __init__(self, *args, **kwargs):
         super(Example, self).__init__(*args, **kwargs)
         self.cbs = []
@@ -34,24 +31,15 @@ class Example(wx.Frame):
         self.init_ui()
 
     def init_ui(self):
-        color_switcher = {
-            'running': (0, 100, 0),
-            'stopped': (100, 0, 0),
-            'unknown': (200, 200, 200)
-        }
-
         pnl = wx.Panel(self)
         data = load_data()
 
         offset = 10
         for d in data:
             self.cbs.append(wx.CheckBox(pnl, label=d[1], pos=(10, offset), name=d[0]))
-            state = get_service_status(d[0])
-            # todo: do this every second
-            self.cbs[-1].SetForegroundColour(wx.Colour(color_switcher.get(state)))
-            if state == 'unknown':
-                self.cbs[-1].Disable()
             offset += 30
+
+        self.set_checkbox_colors(self.cbs)
         self.btn_stop = wx.Button(pnl, label="Stop", pos=(10, offset))
         self.btn_start = wx.Button(pnl, label="Start", pos=(100, offset))
         self.btn_stop.Bind(wx.EVT_BUTTON, self.btn_clicked)
@@ -63,6 +51,22 @@ class Example(wx.Frame):
         self.SetSize(305, offset + 80)
         self.SetTitle('Service ReStarter')
         self.Centre()
+
+    @staticmethod
+    def set_checkbox_colors(cbs):
+        # todo: do this every second, update gui accordingly
+        color_switcher = {
+            'running': (0, 100, 0),
+            'stopped': (100, 0, 0),
+            'unknown': (200, 200, 200)
+        }
+        for cb in cbs:
+            state = get_service_status(cb.GetName())
+            cb.SetForegroundColour(wx.Colour(color_switcher.get(state)))
+            if state == 'unknown':
+                cb.Disable()
+            else:  # for the todo, not needed otherwise
+                cb.Enable()
 
     def btn_clicked(self, event):
         service_switcher = {
