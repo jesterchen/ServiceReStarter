@@ -1,0 +1,11 @@
+[
+('QlikLoggingService', 'Qlik Logging Service'),
+('QvNetworkServer', 'Qlik SAP Network Server'),
+('QlikSenseEngineService', 'Qlik Sense Engine Service'),
+('QlikSensePrintingService', 'Qlik Sense Printing Service'),
+('QlikSenseProxyService', 'Qlik Sense Proxy Service'),
+('QlikSenseRepositoryDatabase', 'Qlik Sense Repository Database'),
+('QlikSenseRepositoryService', 'Qlik Sense Repository Service'),
+('QlikSenseSchedulerService', 'Qlik Sense Scheduler Service'),
+('QlikSenseServiceDispatcher', 'Qlik Sense Service Dispatcher')
+]
