@@ -1,5 +1,6 @@
 import wx
 import subprocess
+import threading, time
 
 
 def get_service_status(svcname):
@@ -39,7 +40,7 @@ class Example(wx.Frame):
             self.cbs.append(wx.CheckBox(pnl, label=d[1], pos=(10, offset), name=d[0]))
             offset += 30
 
-        self.set_checkbox_colors(self.cbs)
+        threading.Thread(target=self.set_checkbox_colors).start()
         self.btn_stop = wx.Button(pnl, label="Stop", pos=(10, offset))
         self.btn_start = wx.Button(pnl, label="Start", pos=(100, offset))
         self.btn_stop.Bind(wx.EVT_BUTTON, self.btn_clicked)
@@ -52,21 +53,22 @@ class Example(wx.Frame):
         self.SetTitle('Service ReStarter')
         self.Centre()
 
-    @staticmethod
-    def set_checkbox_colors(cbs):
-        # todo: do this every second, update gui accordingly
-        color_switcher = {
-            'running': (0, 100, 0),
-            'stopped': (100, 0, 0),
-            'unknown': (200, 200, 200)
-        }
-        for cb in cbs:
-            state = get_service_status(cb.GetName())
-            cb.SetForegroundColour(wx.Colour(color_switcher.get(state)))
-            if state == 'unknown':
-                cb.Disable()
-            else:  # for the todo, not needed otherwise
-                cb.Enable()
+    def set_checkbox_colors(self):
+        while True:
+            color_switcher = {
+                'running': (0, 100, 0),
+                'stopped': (100, 0, 0),
+                'unknown': (200, 200, 200)
+            }
+            for cb in self.cbs:
+                state = get_service_status(cb.GetName())
+                cb.SetForegroundColour(wx.Colour(color_switcher.get(state)))
+                if state == 'unknown':
+                    cb.Disable()
+                else:
+                    cb.Enable()
+            self.Refresh()
+            time.sleep(1)
 
     def btn_clicked(self, event):
         service_switcher = {
