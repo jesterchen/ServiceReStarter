@@ -24,7 +24,6 @@ def start_service(svcname):
 
 
 def restart_service(svcname):
-    print("restarting {}".format(svcname))
     start = time.time()
     timer_exceeded = False
     if get_service_status(svcname) == 'running':
