@@ -29,6 +29,8 @@ class Example(wx.Frame):
         self.cbs = []
         self.btn_stop = wx.Button()
         self.btn_start = wx.Button()
+        self.Bind(wx.EVT_CLOSE, self.OnClose, self)
+        self.closing = False
         self.init_ui()
 
     def init_ui(self):
@@ -40,7 +42,6 @@ class Example(wx.Frame):
             self.cbs.append(wx.CheckBox(pnl, label=d[1], pos=(10, offset), name=d[0]))
             offset += 30
 
-        # todo: thread will raise exception on program quit. handle it or remove it
         threading.Thread(target=self.set_checkbox_colors).start()
         self.btn_stop = wx.Button(pnl, label="Stop", pos=(10, offset))
         self.btn_start = wx.Button(pnl, label="Start", pos=(100, offset))
@@ -54,21 +55,28 @@ class Example(wx.Frame):
         self.SetTitle('Service ReStarter')
         self.Centre()
 
+    def OnClose(self, event):
+        self.closing = True
+        self.Destroy()
+
     def set_checkbox_colors(self):
-        while True:
-            color_switcher = {
-                'running': (0, 100, 0),
-                'stopped': (100, 0, 0),
-                'unknown': (200, 200, 200)
-            }
-            for cb in self.cbs:
-                state = get_service_status(cb.GetName())
-                cb.SetForegroundColour(wx.Colour(color_switcher.get(state)))
-                if state == 'unknown':
-                    cb.Disable()
-                else:
-                    cb.Enable()
-            self.Refresh()
+        while not self.closing:
+            try:
+                color_switcher = {
+                    'running': (0, 100, 0),
+                    'stopped': (100, 0, 0),
+                    'unknown': (200, 200, 200)
+                }
+                for cb in self.cbs:
+                    state = get_service_status(cb.GetName())
+                    cb.SetForegroundColour(wx.Colour(color_switcher.get(state)))
+                    if state == 'unknown':
+                        cb.Disable()
+                    else:
+                        cb.Enable()
+                self.Refresh()
+            except RuntimeError:
+                pass
             time.sleep(1)
 
     def btn_clicked(self, event):
