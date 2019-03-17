@@ -40,6 +40,7 @@ class Example(wx.Frame):
             self.cbs.append(wx.CheckBox(pnl, label=d[1], pos=(10, offset), name=d[0]))
             offset += 30
 
+        # todo: thread will raise exception on program quit. handle it or remove it
         threading.Thread(target=self.set_checkbox_colors).start()
         self.btn_stop = wx.Button(pnl, label="Stop", pos=(10, offset))
         self.btn_start = wx.Button(pnl, label="Start", pos=(100, offset))
