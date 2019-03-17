@@ -108,6 +108,7 @@ class Example(wx.Frame):
 
 
 def main():
+    # todo: does not work with pythoninstaller -w, perhaps due to MainLoop.
     app = wx.App()
     ex = Example(None)
     ex.Show()
