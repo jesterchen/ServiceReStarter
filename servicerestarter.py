@@ -23,6 +23,23 @@ def start_service(svcname):
     subprocess.run(['net', 'start', svcname], capture_output=True)
 
 
+def restart_service(svcname):
+    print("restarting {}".format(svcname))
+    start = time.time()
+    timer_exceeded = False
+    if get_service_status(svcname) == 'running':
+        stop_service(svcname)
+        while get_service_status(svcname) != 'stopped' and not timer_exceeded:
+            now = time.time()
+            # todo: extract wait for timeout into text box on gui
+            if now - start > 60:
+                timer_exceeded = True
+            time.sleep(1)
+        time.sleep(1)
+    if not timer_exceeded:
+        start_service(svcname)
+
+
 class Example(wx.Frame):
     def __init__(self, *args, **kwargs):
         super(Example, self).__init__(*args, **kwargs)
@@ -44,12 +61,11 @@ class Example(wx.Frame):
 
         threading.Thread(target=self.set_checkbox_colors).start()
         self.btn_stop = wx.Button(pnl, label="Stop", pos=(10, offset))
-        self.btn_start = wx.Button(pnl, label="Start", pos=(100, offset))
         self.btn_stop.Bind(wx.EVT_BUTTON, self.btn_clicked)
+        self.btn_start = wx.Button(pnl, label="Start", pos=(100, offset))
         self.btn_start.Bind(wx.EVT_BUTTON, self.btn_clicked)
-        # todo: implement restart with proper checking for stop and start, perhaps red/green blinking label
-        # self.btn_restart = wx.Button(pnl, label="Restart", pos=(190, offset))
-        # self.btn_restart.Bind(wx.EVT_BUTTON, self.btn_clicked)
+        self.btn_restart = wx.Button(pnl, label="Restart", pos=(190, offset))
+        self.btn_restart.Bind(wx.EVT_BUTTON, self.btn_clicked)
 
         self.SetSize(305, offset + 80)
         self.SetTitle('Service ReStarter')
@@ -82,13 +98,14 @@ class Example(wx.Frame):
     def btn_clicked(self, event):
         service_switcher = {
             'Stop': stop_service,
-            'Start': start_service
+            'Start': start_service,
+            'Restart': restart_service
         }
         for cb in self.cbs:
             if cb.IsEnabled():
                 if cb.GetValue():
                     func = service_switcher.get(event.GetEventObject().GetLabel())
-                    func(cb.GetName())
+                    threading.Thread(target=func, args=(cb.GetName(),)).start()
 
 
 def main():
